@@ -121,53 +121,57 @@ def twoPointCrossover(parent1, parent2):
 
 def isGlobalOptimum(population):
 	for individual in population:
-		if "0" in individual:
-			return False
-	return True
+		if "0" not in individual:
+			return True
+	return False
 
 def findN():
-	Ns = [10]
+	N = 10
 
-	# search until 1280
-	while Ns[len(Ns) - 1] < 1280:
-		print(Ns[len(Ns) - 1])
+	# double until N is reliable or N = 1280
+	while N <= 1280:
+		print("Doubling N. Currently checking N =", N)
 		# double after every unreliable result
-		while not checkReliability(Ns=Ns):
-			Ns.append(Ns[len(Ns) - 1] * 2)
+		if not isReliable(N):
+			N *= 2
 		else:
-			# only take steps of 10
-			while Ns[len(Ns) - 1] % 10 == 0:
-				if checkReliability(Ns=Ns):
-					if Ns[len(Ns) - 1] < Ns[len(Ns) - 2]:
-						Ns.append((Ns[len(Ns) - 1] + Ns[len(Ns) - 3]) / 2)
-					else:
-						Ns.append((Ns[len(Ns) - 1] + Ns[len(Ns) - 2]) / 2)
-				else:
-					if Ns[len(Ns) - 1] < Ns[len(Ns) - 2]:
-						Ns.append((Ns[len(Ns) - 1] + Ns[len(Ns) - 2]) / 2)
-					else:
-						Ns.append((Ns[len(Ns) - 1] + Ns[len(Ns) - 3]) / 2)
-			print("Stopped at N=", Ns[len(Ns) - 1])
-			return Ns[len(Ns) - 1]
-	else:
-		print("Report FAIL. Global optimum not found with size 1280.")
-		return "Fail"
+			lowerbound = N / 2
+			upperbound = N
+			break
+	print("Doubling stopped at N =", N)
 
+	# bisection
+	N = int((lowerbound + upperbound) / 2)
+	while True:
+		print("Iteration with N =", N)
+		if isReliable(N):
+			upperbound = N
+		else:
+			lowerbound = N
+		nextN = int((upperbound + lowerbound) / 2)
 
-def checkReliability(Ns):
-	N = Ns[len(Ns) - 1]
+		# stop if the next N is not a multiple of 10
+		if nextN % 10 == 0:
+			N = nextN
+		else:
+			break
+	print("Found N for value N =", N)
+
+def isReliable(N):
 	optima = 0
 	for iteration in range(0, 25):
-		population = evolve(N=N)
-		if isGlobalOptimum(population):
+		globalOptimumFound = evolve(N=N)
+		if globalOptimumFound:
 			optima += 1
-	print(Ns)
 	return optima >= 24
 
 # Generate a population of size N and evolve it.
 def evolve(N):
 	population = generatePopulation(N=N, length=100)
 	for generation in range(0, settings["generations"]):
+		if isGlobalOptimum(population):
+			return True
+
 		# 1. Randomly shuffle the population P(t).
 		random.shuffle(population)
 
@@ -221,10 +225,8 @@ def evolve(N):
 				elif fitness[child2] == fitness[secondWinner]:
 					secondWinner = child2
 			winners += [winner, secondWinner]
-		# print(generation, "/", settings["generations"])
 		population = winners
-	# print("\n Final population with N=", str(N), ":")
-	# print(population)
-	return population
+
+	return isGlobalOptimum(population)
 
 findN()
