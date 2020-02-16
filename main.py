@@ -1,5 +1,6 @@
 import random
 from settings import settings
+import time #We want to track how long it took 
 
 def countOnes(string):
 	oneCounter = 0
@@ -154,8 +155,9 @@ def findN():
 		if nextN % 10 == 0:
 			N = nextN
 		else:
-			break
-	print("Found N for value N =", N)
+			return N 
+	print("Found N for value N =", N) 
+
 
 def isReliable(N):
 	optima = 0
@@ -229,4 +231,3 @@ def evolve(N):
 
 	return isGlobalOptimum(population)
 
-findN()
