@@ -13,7 +13,7 @@ def plotExperiment(N):
 
 	for generation in range(0, settings["generations"]):
 		if main.isGlobalOptimum(population):
-			print("Optimum found at generation: ", generation, population)
+			print("Optimum found at generation: ", generation)
 			plt.plot(oneCount, generationCount) 
 			plt.show 
 			return
