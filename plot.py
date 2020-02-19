@@ -85,7 +85,23 @@ def calculateError (parent1, parent2, winner1, winner2):
                                 error+=1
                         elif winner1[index]=="1" and winner2[index]=="1":
                                 corr+=1
-        return error, corr 
+        return error, corr
+
+def checkSchemata (population):
+        zeroSchemata = []
+        oneSchemata = []
+        zeroFitness = 0
+        oneFitness = 0 
+        for individual in population:
+                if individual[0] == "0":
+                        zeroSchemata.append(individual)
+                else:
+                        oneSchemata.append(individual)
+        for individual in zeroSchemata:
+                zeroFitness += optimizedCountOnes(individual)
+        for individual in oneSchemata:
+                oneFitness += optimizedCountOnes(individual)
+        return zeroFitness, oneFitness 
 
 def plotExperiment(N):
         population = generatePopulation(N=N, length=100) 
@@ -93,6 +109,8 @@ def plotExperiment(N):
         generationCount = []
         errorCount = []
         correctionCount = []
+        oneSchemataFitnessCount = []
+        zeroSchemataFitnessCount = [] 
 
         for generation in range(0, settings["generations"]):
                 if isGlobalOptimum(population):
@@ -115,6 +133,15 @@ def plotExperiment(N):
                         plt.ylabel('Error/Correction')
                         plt.plot(x1, y, '--r', x2, y, 'bs')
                         plt.show()
+
+                        x1 = np.asarray(oneSchemataFitnessCount)
+                        x2 = np.asarray(zeroSchemataFitnessCount) 
+
+                        plt.xlabel('Generation')
+                        plt.ylabel('One/Zero Schemata Fitness')
+                        plt.plot(x1, y, '--r', x2, y, 'bs')
+                        plt.show()
+                        
                         return 
 
                 totalOnes = 0
@@ -124,7 +151,12 @@ def plotExperiment(N):
                 for individual in population: 
                         totalOnes += optimizedCountOnes(individual) 
                 oneCount.append(totalOnes)
-                generationCount.append(generation) 
+                generationCount.append(generation)
+
+                zeroSchemataFitness, oneSchemataFitness = checkSchemata(population)
+                zeroSchemataFitnessCount.append(zeroSchemataFitness/totalOnes)
+                oneSchemataFitnessCount.append(oneSchemataFitness/totalOnes)
+                
 
                 # 1. Randomly shuffle the population P(t).
                 random.shuffle(population)
