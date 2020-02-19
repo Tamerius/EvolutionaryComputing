@@ -236,4 +236,7 @@ def evolve(N):
 
         return isGlobalOptimum(population)
 
+start_time = time.time() 
 findN()
+elapsed_time = time.time() - start_time
+print ("Done in ", elapsed_time, " seconds") 
