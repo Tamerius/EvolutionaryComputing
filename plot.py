@@ -65,37 +65,62 @@ def twoPointCrossover(parent1, parent2):
         for index in segment3:
                 child1 += parent1[index]
                 child2 += parent2[index]
-        return child1, child2
+        return child1, child2 
 
 def isGlobalOptimum(population):
         for individual in population:
                 if "0" not in individual:
                         return True
-        return False 
+        return False
+
+def calculateError (parent1, parent2, winner1, winner2): 
+        if len(parent1) != len(parent2):
+                print("parents not of same size!")
+                return
+        error = 0
+        corr = 0
+        for index in range(0, len(parent1)):
+                if parent1[index]=="1" or parent2[index]=="1":
+                        if winner1[index]=="0" and winner2[index]=="0":
+                                error+=1
+                        elif winner1[index]=="1" and winner2[index]=="1":
+                                corr+=1
+        return error, corr 
 
 def plotExperiment(N):
         population = generatePopulation(N=N, length=100) 
         oneCount = []
-        generationCount = [] 
+        generationCount = []
+        errorCount = []
+        correctionCount = []
 
         for generation in range(0, settings["generations"]):
                 if isGlobalOptimum(population):
                         print("Optimum found at generation: ", generation)
-                        print (generationCount) 
+                        
                         for item in oneCount:
                                 oneCount[oneCount.index(item)] = item / oneCount[len(oneCount) - 1]
-                        print (oneCount)
                         y = np.asarray(oneCount)
                         x = np.asarray(generationCount)
 
                         plt.ylabel('Average fitness')
                         plt.xlabel('Generation')
-                        
                         plt.plot(x, y) 
-                        plt.show() 
+                        plt.show()
+
+                        x1 = np.asarray(errorCount)
+                        x2 = np.asarray(correctionCount) 
+
+                        plt.xlabel('Generation')
+                        plt.ylabel('Error/Correction')
+                        plt.plot(x1, y, '--r', x2, y, 'bs')
+                        plt.show()
                         return 
 
-                totalOnes = 0 
+                totalOnes = 0
+                totalError = 0
+                totalCorrection = 0
+                
                 for individual in population: 
                         totalOnes += optimizedCountOnes(individual) 
                 oneCount.append(totalOnes)
@@ -142,8 +167,18 @@ def plotExperiment(N):
                                         secondWinner = child1
                                 elif fitness[child2] == fitness[secondWinner]:
                                         secondWinner = child2
+
+                        err, corr = calculateError(parent1, parent2, winner, secondWinner)
+
+                        totalError += err
+                        totalCorrection += corr
+                        
                         winners += [winner, secondWinner]
                 population = winners
+
+                errorCount.append(totalError)
+                correctionCount.append(totalCorrection)
+
         print(population) 
 
 
