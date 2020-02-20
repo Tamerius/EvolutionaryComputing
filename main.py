@@ -169,10 +169,13 @@ def isReliable(N):
 
 # Generate a population of size N and evolve it.
 def evolve(N):
+        start_time = time.time()
         population = generatePopulation(N=N, length=100)
         for generation in range(0, settings["generations"]):
                 if isGlobalOptimum(population):
+                        elapsed_time = time.time() - start_time
                         print ("Global optimum found at generation ", generation, " with an average fitness of ", (totalFitness/N)) 
+                        print ("Done in ", elapsed_time, " seconds") 
                         return True
 
                 # 1. Randomly shuffle the population P(t).
@@ -235,8 +238,5 @@ def evolve(N):
                 population = winners
 
         return isGlobalOptimum(population)
-
-start_time = time.time() 
+ 
 findN()
-elapsed_time = time.time() - start_time
-print ("Done in ", elapsed_time, " seconds") 
