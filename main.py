@@ -39,7 +39,7 @@ def linkedNonDeceptiveTF(string):
         return results
 
 def deceptiveNonlinkedTF(string):
-        results = []
+        results = 0
         for offset in range(0, int(len(string) / 4)):
                 cutoffIndices = [
                         0 + offset,
@@ -49,11 +49,11 @@ def deceptiveNonlinkedTF(string):
                 newString = []
                 for cutoffIndex in cutoffIndices:
                         newString += string[cutoffIndex]
-                results.append(linkedDeceptiveTF(newString))
+                results += linkedDeceptiveTF(newString)
         return results
 
 def nonDeceptiveNonlinkedTF(string):
-        results = []
+        results = 0
         for offset in range(0, int(len(string) / 4)):
                 cutoffIndices = [
                         0 + offset,
@@ -63,7 +63,7 @@ def nonDeceptiveNonlinkedTF(string):
                 newString = []
                 for cutoffIndex in cutoffIndices:
                         newString += string[cutoffIndex]
-                results.append(linkedNonDeceptiveTF(newString))
+                results += linkedNonDeceptiveTF(newString)
         return results
 
 def generateString(length):
@@ -237,6 +237,6 @@ def evolve(N):
                         winners += [winner, secondWinner]
                 population = winners
 
-        return isGlobalOptimum(population)
+        return False 
  
 findN()

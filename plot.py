@@ -115,32 +115,65 @@ def plotExperiment(N):
         for generation in range(0, settings["generations"]):
                 if isGlobalOptimum(population):
                         print("Optimum found at generation: ", generation)
-                        
+
+                        relOneCount = []
                         for item in oneCount:
-                                oneCount[oneCount.index(item)] = item / oneCount[len(oneCount) - 1]
-                        y = np.asarray(oneCount)
+                                relOneCount.append(item / oneCount[len(oneCount) - 1]) 
+                        y = np.asarray(relOneCount)
                         x = np.asarray(generationCount)
 
-                        plt.ylabel('Average fitness')
+                        plt.ylabel('Relative fitness')
                         plt.xlabel('Generation')
-                        plt.plot(x, y) 
+                        plt.plot(x, y, label = 'Relative Fitness')
+                        plt.legend() 
                         plt.show()
 
-                        x1 = np.asarray(errorCount)
-                        x2 = np.asarray(correctionCount) 
+                        y1 = np.asarray(errorCount)
+                        y2 = np.asarray(correctionCount) 
 
                         plt.xlabel('Generation')
                         plt.ylabel('Error/Correction')
-                        plt.plot(x1, y, '--r', x2, y, 'bs')
+                        label1 = 'Error'
+                        label2 = 'Correction'
+                        plt.plot(x, y1, '--r', x, y2, 'bs')
+                        plt.legend((label1, label2)) 
                         plt.show()
 
-                        x1 = np.asarray(oneSchemataFitnessCount)
-                        x2 = np.asarray(zeroSchemataFitnessCount) 
+                        meanOne = np.mean(oneSchemataFitnessCount)
+                        meanZero = np.mean(zeroSchemataFitnessCount)
 
-                        plt.xlabel('Generation')
-                        plt.ylabel('One/Zero Schemata Fitness')
-                        plt.plot(x1, y, '--r', x2, y, 'bs')
-                        plt.show()
+                        stdevOne = np.std(oneSchemataFitnessCount)
+                        stdevZero = np.std(zeroSchemataFitnessCount)
+
+                        fig = plt.figure(figsize=(10, 8))
+                        ax = fig.add_subplot(111)
+                        
+                        ax.set_xlabel('Generation')
+                        ax.set_ylabel('One/Zero Schemata Fitness')
+                        
+                        y1 = np.asarray(oneSchemataFitnessCount)
+                        y2 = np.asarray(zeroSchemataFitnessCount)
+
+                        colorOne = 'green'
+                        colorZero = 'red'
+                        lineStyleOne = {"linestyle":"--", "linewidth":2, "markeredgewidth":2, "elinewidth":2, "capsize":3}
+                        lineStyleZero = {"linestyle":"--", "linewidth":2, "markeredgewidth":2, "elinewidth":2, "capsize":3}
+                        lineOnes = ax.errorbar(x, y1, yerr=stdevOne, **lineStyleOne, color=colorOne, label='Relative One Schemata Fitness')
+                        lineZeroes = ax.errorbar(x, y2, yerr=stdevZero, **lineStyleZero, color=colorZero, label='Relative Zero Schemata Fitness')
+
+                        #for i, txt in enumerate(y1):   
+                        #     ax.annotate(txt, xy=(x[i], y1[i]),
+                        #                 xytext=(x[i]+0.03,y1[i]+0.3),
+                        #                 color=colorOne) 
+                        #for i, txt in enumerate(y2):        
+                        #     ax.annotate(txt, xy=(x[i], y2[i]),
+                        #                 xytext=(x[i]+0.03, y2[i]+0.3),
+                        #                 color=colorZero)
+                        
+                        plt.legend(handles=[lineOnes, lineZeroes], loc='upper right')
+
+                        
+                        plt.show() 
                         
                         return 
 
@@ -154,8 +187,8 @@ def plotExperiment(N):
                 generationCount.append(generation)
 
                 zeroSchemataFitness, oneSchemataFitness = checkSchemata(population)
-                zeroSchemataFitnessCount.append(zeroSchemataFitness/totalOnes)
-                oneSchemataFitnessCount.append(oneSchemataFitness/totalOnes)
+                zeroSchemataFitnessCount.append(zeroSchemataFitness/N)
+                oneSchemataFitnessCount.append(oneSchemataFitness/N)
                 
 
                 # 1. Randomly shuffle the population P(t).
