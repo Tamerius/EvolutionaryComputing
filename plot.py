@@ -87,6 +87,26 @@ def calculateError (parent1, parent2, winner1, winner2):
                                 corr+=1
         return error, corr
 
+def checkAverageSchemata (population):
+        zeroSchemata = []
+        oneSchemata = []
+        zeroFitness = 0
+        oneFitness = 0 
+        for individual in population:
+                if individual[0] == "0":
+                        zeroSchemata.append(individual)
+                else:
+                        oneSchemata.append(individual)
+        for individual in zeroSchemata:
+                zeroFitness += optimizedCountOnes(individual)
+        if (len(zeroSchemata) != 0):
+                zeroFitness = zeroFitness/len(zeroSchemata)
+        for individual in oneSchemata:
+                oneFitness += optimizedCountOnes(individual)
+        if (len(oneSchemata) != 0): 
+                oneFitness = oneFitness/len(oneSchemata) 
+        return zeroFitness, oneFitness
+
 def checkSchemata (population):
         zeroSchemata = []
         oneSchemata = []
@@ -110,7 +130,9 @@ def plotExperiment(N):
         errorCount = []
         correctionCount = []
         oneSchemataFitnessCount = []
-        zeroSchemataFitnessCount = [] 
+        zeroSchemataFitnessCount = []
+        relativeOneSchemataFitnessCount = []
+        relativeZeroSchemataFitnessCount = []
 
         for generation in range(0, settings["generations"]):
                 if isGlobalOptimum(population):
@@ -139,6 +161,40 @@ def plotExperiment(N):
                         plt.legend((label1, label2)) 
                         plt.show()
 
+                        meanOne = np.mean(relativeOneSchemataFitnessCount)
+                        meanZero = np.mean(relativeZeroSchemataFitnessCount)
+
+                        stdevOne = np.std(relativeOneSchemataFitnessCount)
+                        stdevZero = np.std(relativeZeroSchemataFitnessCount)
+
+                        fig = plt.figure(figsize=(10, 8))
+                        ax = fig.add_subplot(111)
+                        
+                        ax.set_xlabel('Generation')
+                        ax.set_ylabel('One/Zero Schemata Fitness')
+                        
+                        y1 = np.asarray(relativeOneSchemataFitnessCount)
+                        y2 = np.asarray(relativeZeroSchemataFitnessCount)
+
+                        colorOne = 'green'
+                        colorZero = 'red'
+                        lineStyleOne = {"linestyle":"--", "linewidth":2, "markeredgewidth":2, "elinewidth":2, "capsize":3}
+                        lineStyleZero = {"linestyle":"--", "linewidth":2, "markeredgewidth":2, "elinewidth":2, "capsize":3}
+                        lineOnes = ax.errorbar(x, y1, yerr=stdevOne, **lineStyleOne, color=colorOne, label='Relative One Schemata Fitness')
+                        lineZeroes = ax.errorbar(x, y2, yerr=stdevZero, **lineStyleZero, color=colorZero, label='Relative Zero Schemata Fitness')
+
+                        #for i, txt in enumerate(y1):   
+                        #     ax.annotate(txt, xy=(x[i], y1[i]),
+                        #                 xytext=(x[i]+0.03,y1[i]+0.3),
+                        #                 color=colorOne) 
+                        #for i, txt in enumerate(y2):        
+                        #     ax.annotate(txt, xy=(x[i], y2[i]),
+                        #                 xytext=(x[i]+0.03, y2[i]+0.3),
+                        #                 color=colorZero)
+                        
+                        plt.legend(handles=[lineOnes, lineZeroes], loc='upper right')
+                        plt.show()
+
                         meanOne = np.mean(oneSchemataFitnessCount)
                         meanZero = np.mean(zeroSchemataFitnessCount)
 
@@ -158,8 +214,8 @@ def plotExperiment(N):
                         colorZero = 'red'
                         lineStyleOne = {"linestyle":"--", "linewidth":2, "markeredgewidth":2, "elinewidth":2, "capsize":3}
                         lineStyleZero = {"linestyle":"--", "linewidth":2, "markeredgewidth":2, "elinewidth":2, "capsize":3}
-                        lineOnes = ax.errorbar(x, y1, yerr=stdevOne, **lineStyleOne, color=colorOne, label='Relative One Schemata Fitness')
-                        lineZeroes = ax.errorbar(x, y2, yerr=stdevZero, **lineStyleZero, color=colorZero, label='Relative Zero Schemata Fitness')
+                        lineOnes = ax.errorbar(x, y1, yerr=stdevOne, **lineStyleOne, color=colorOne, label='Average One Schemata Fitness')
+                        lineZeroes = ax.errorbar(x, y2, yerr=stdevZero, **lineStyleZero, color=colorZero, label='Average Zero Schemata Fitness')
 
                         #for i, txt in enumerate(y1):   
                         #     ax.annotate(txt, xy=(x[i], y1[i]),
@@ -171,8 +227,6 @@ def plotExperiment(N):
                         #                 color=colorZero)
                         
                         plt.legend(handles=[lineOnes, lineZeroes], loc='upper right')
-
-                        
                         plt.show() 
                         
                         return 
@@ -186,9 +240,12 @@ def plotExperiment(N):
                 oneCount.append(totalOnes)
                 generationCount.append(generation)
 
+                averageZeroSchemataFitness, averageOneSchemataFitness = checkAverageSchemata (population) 
                 zeroSchemataFitness, oneSchemataFitness = checkSchemata(population)
-                zeroSchemataFitnessCount.append(zeroSchemataFitness/N)
-                oneSchemataFitnessCount.append(oneSchemataFitness/N)
+                relativeZeroSchemataFitnessCount.append(zeroSchemataFitness/N)
+                relativeOneSchemataFitnessCount.append(oneSchemataFitness/N)
+                oneSchemataFitnessCount.append(averageOneSchemataFitness)
+                zeroSchemataFitnessCount.append(averageZeroSchemataFitness)
                 
 
                 # 1. Randomly shuffle the population P(t).
