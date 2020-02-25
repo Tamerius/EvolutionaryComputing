@@ -1,5 +1,5 @@
 settings = {
-	"uniformCrossover": True,
+	"uniformCrossover": False,
 	"fitnessFunction": "nonDeceptiveNonlinkedTF",# countOnes, linkedDeceptiveTF, linkedDonDeceptiveTF, deceptiveNonlinkedTF, nonDeceptiveNonlinkedTF
 	"generations": 800,
 
